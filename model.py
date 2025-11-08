@@ -109,12 +109,16 @@ class AddressBook(UserDict):
         """
         Returns a list of upcoming birthdays from the given list of birthdays.
         """
+        # dict represents celebrants per date
         upcoming_birthdays_per_date = dict()
     
         today = datetime.today().date()
 
         for name, record in self.data.items():
-            bday_date = record.birthday.date()
+            if record.birthday is None:
+                continue 
+
+            bday_date = record.birthday.value.date()
             # find the next birthday, add the year difference to the birthday 
             # date (it will handle 29th February)
             years_diff = today.year - bday_date.year
@@ -139,13 +143,15 @@ class AddressBook(UserDict):
 
                 date_celebrants.append(name)
 
-            # create a list of celebrants per date sorted by date
-            upcoming_birthdays_per_day = []
-            
-            for date in date_celebrants.keys().sort():
-                upcoming_birthdays_per_day.append({
-                    "day": date.strftime("%A"),  # Sunday, Monday, ...
-                    "celebrants": date_celebrants.get(date)
-                })
+        # create a list of celebrants per day sorted by date
+        upcoming_birthdays_per_day = []
+        if not upcoming_birthdays_per_date:
+            return []
+
+        for date in sorted(upcoming_birthdays_per_date.keys()):
+            upcoming_birthdays_per_day.append({
+                "day": date.strftime("%A"),  # Sunday, Monday, ...
+                "celebrants": upcoming_birthdays_per_date.get(date)
+            })
             
         return upcoming_birthdays_per_day

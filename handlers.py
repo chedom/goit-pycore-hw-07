@@ -3,7 +3,7 @@ from model import AddressBook, Record
 
 
 def input_error(func):
-    @wraps(func) # preserve function's metadate
+    @wraps(func)  # preserve function's metadate
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -32,7 +32,9 @@ def add_contact(args: list[str], book: AddressBook) -> None:
 
 @input_error
 def change_contact(args: list[str], book: AddressBook) -> str:
-    """ Change the phone of specified name, it works only if name has already existed """
+    """ Change the phone of specified name, 
+    it works only if name has already existed.
+    """
     name, prev_phone, new_phone, *_ = args
 
     record = book.find(name)
@@ -76,6 +78,8 @@ def add_birthday(args: list[str], book: AddressBook) -> str:
 
     record.add_birthday(bday)
 
+    return "Birthday has been added."
+
 
 @input_error
 def show_birthday(args: list[str], book: AddressBook) -> str:
@@ -88,9 +92,9 @@ def show_birthday(args: list[str], book: AddressBook) -> str:
 
     bday = record.birthday
     if bday is None:
-        return "Birthday is not specified for the contat"
+        return "Birthday is not specified for the contact"
 
-    return bday.strftime("%d.%m.%Y")
+    return bday.value.strftime("%d.%m.%Y")
 
 
 @input_error
@@ -103,8 +107,8 @@ def birthdays(book: AddressBook) -> str:
     formated_bdays = []
 
     for day_celebrants in upcoming_birthdays:
-        celebrants = ', '.join(day_celebrants.celebrants)
-        msg = f"For the day {day_celebrants.day} next celebrants: {celebrants}"
+        celebrants = ', '.join(day_celebrants.get("celebrants"))
+        msg = f"Day {day_celebrants.get("day")} next celebrants: {celebrants}"
         formated_bdays.append(msg)
 
     return "\n".join(formated_bdays)
