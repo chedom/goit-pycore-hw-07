@@ -14,6 +14,7 @@ def input_error(func):
         except (ValueError, IndexError, KeyError) as e:
             if "not enough values to unpack" in str(e):
                 return "Not enough arguments passed."
+                
             return f"Verify the argument for the command: {e}"
 
     return inner
