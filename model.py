@@ -45,6 +45,9 @@ class Birthday(Field):
         except ValueError:
             raise ValueError("Invalid date format. Use DD.MM.YYYY")
 
+    def __str__(self) -> str:
+        return self.value.strftime("%d.%m.%Y")
+
 
 class Record:
     """Represents contact details for a person."""
@@ -54,8 +57,15 @@ class Record:
         self.birthday = None
 
     def __str__(self) -> str:
-        phones = '; '.join(p.value for p in self.phones)
-        return f"Contact name: {self.name.value}, phones: {phones}"
+        bd_rep = "unknown" if self.birthday is None else str(self.birthday)
+        phone_rep = self.stringify_phones()
+
+        return f"Contact name: {self.name.value}, birthday: {bd_rep}, {phone_rep}" # noqa
+
+    def stringify_phones(self) -> str:
+        """ Return string representation of phones """
+        phones_rep = '; '.join(p.value for p in self.phones)
+        return f"phones: {phones_rep}"
 
     def add_phone(self, phone: str) -> None:
         """Add phone number to a record."""

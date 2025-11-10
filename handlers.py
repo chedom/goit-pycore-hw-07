@@ -3,11 +3,17 @@ from model import AddressBook, Record
 
 
 def input_error(func):
+    """ Convert errors to user friendly messages """
     @wraps(func)  # preserve function's metadate
     def inner(*args, **kwargs):
         try:
             return func(*args, **kwargs)
+        except AttributeError:
+            #  in our case this error could happen only to record instance
+            return "Specified contact doesnt exist."
         except (ValueError, IndexError, KeyError) as e:
+            if "not enough values to unpack" in str(e):
+                return "Not enough arguments passed."
             return f"Verify the argument for the command: {e}"
 
     return inner
@@ -38,9 +44,6 @@ def change_contact(args: list[str], book: AddressBook) -> str:
     name, prev_phone, new_phone, *_ = args
 
     record = book.find(name)
-    if record is None:
-        raise ValueError(f"Contact {name} doesnt exist.")
-
     record.edit_phone(prev_phone, new_phone)
 
     return "Contact changed."
@@ -50,12 +53,9 @@ def change_contact(args: list[str], book: AddressBook) -> str:
 def show_phone(args: list[str], book: AddressBook) -> str:
     """ Returns phone number for specified name """
     name, *_ = args
-
     record = book.find(name)
-    if record is None:
-        raise ValueError(f"Contact {name} doesnt exist.")
-    # assume that record has implemented (__str__) custom string representation
-    return str(record)
+
+    return record.stringify_phones()
 
 
 @input_error
@@ -69,13 +69,10 @@ def show_all_phone(book: AddressBook) -> str:
 
 @input_error
 def add_birthday(args: list[str], book: AddressBook) -> str:
-    """ Add birthday for a contact """ 
+    """ Add birthday for a contact """
     name, bday, *_ = args
 
     record = book.find(name)
-    if record is None:
-        raise ValueError(f"Contact {name} doesnt exist.")
-
     record.add_birthday(bday)
 
     return "Birthday has been added."
@@ -83,18 +80,16 @@ def add_birthday(args: list[str], book: AddressBook) -> str:
 
 @input_error
 def show_birthday(args: list[str], book: AddressBook) -> str:
-    """ Add birthday for a contact """ 
+    """ Add birthday for a contact """
     name, *_ = args
 
     record = book.find(name)
-    if record is None:
-        raise ValueError(f"Contact {name} doesnt exist.")
 
     bday = record.birthday
     if bday is None:
         return "Birthday is not specified for the contact"
-
-    return bday.value.strftime("%d.%m.%Y")
+    # assume that record has implemented (__str__) custom string representation
+    return str(bday)
 
 
 @input_error
